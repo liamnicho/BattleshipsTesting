@@ -58,3 +58,4 @@ func PlaceShip(grid [7][7]string, col int, row int) [7][7]string {
 	shipsPlaced++
 	return grid
 }
+
