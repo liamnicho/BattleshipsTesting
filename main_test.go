@@ -28,25 +28,28 @@ func getRandomGridSquare() []int {
 
 // here is an example of a failing test - what do we need to do to fix it?
 func TestCreateGrid(t *testing.T) {
+	// Arragne
+	// needs nothing
 
+	// Act
 	grid := CreateGrid()
 
-	gridSizeCols := len(grid)
-	if gridSizeCols != 7 {
-		t.Error("expected size of 7, got: ", gridSizeCols)
-	}
-	gridSizeRows := len(grid[0])
-	if gridSizeRows != 7 {
-		t.Error("expected 7, got:", gridSizeRows)
-	}
+	// Assert - custom assert
+	assertGridIsCorrectSize(t, grid, 7, 7)
 }
 
 //one good place to start here is by using our utility function
 //to target a random grid square rather than 1,1 co-ordinates every time
 
 func TestPlayerOneTakingShot(t *testing.T) {
+
+	// Arrange
 	grid := CreateGrid()
+
+	// Act - Code Under Test - Production Code
 	shotResult := PlayerOneTurn(grid, []int{1, 1})
+
+	// Assert - check the result is what we
 	if shotResult != false {
 		t.Error("Shot should be false!")
 	}
@@ -81,95 +84,78 @@ func TestGetRandomGridSquare(t *testing.T) {
 	}
 }
 
-func TestPlayerOneTurn(t *testing.T) {
-	// Create a grid
-	playerTwoGrid := CreateGrid()
-	playerTwoGrid[2][3] = "S"
-
-	// shot that misses
-	shotResult := PlayerOneTurn(playerTwoGrid, []int{1, 1})
-	if shotResult != false {
-		t.Error("Expected shot to miss, but it hit.")
-	}
-
-	// shot that hits
-	shotResult = PlayerOneTurn(playerTwoGrid, []int{2, 3})
-	if shotResult != false {
-		t.Error("Expected shot to miss, but it hit.")
-	}
-}
-
-func TestPlayerTwoTurn(t *testing.T) {
-	// Create a grid for player one with a battleship
-	playerOneGrid := CreateGrid()
-	playerOneGrid[4][5] = "S"
-
-	// shot that misses
-	shotResult := PlayerTwoTurn(playerOneGrid, []int{1, 1})
-	if shotResult != true {
-		t.Error("Expected to hit, but it missed")
-	}
-
-	// Test a shot that hits
-	shotResult = PlayerTwoTurn(playerOneGrid, []int{4, 5})
-	if shotResult != true {
-		t.Error("Expected to hit, but it missed")
-	}
-}
-
-func TestCountShips(t *testing.T) {
-	// create grid with battleships
-	grid := CreateGrid()
-	grid[2][3] = "S"
-	grid[4][5] = "S"
-	grid[1][1] = "S"
-
-	// Test placing more than 9 ships
-	for i := 0; i < 7; i++ {
-		grid[0][i] = "S"
-	}
-
-	_, err := countShips(grid)
-	if err == nil {
-		t.Error("Expected an error for placing more than 9 ships.")
-	}
-}
-
-func TestCanPlaceShip(t *testing.T) {
-	// Create grid with ship at 2, 3
+func TestPlaceAShip(t *testing.T) {
+	// Arange
 	grid := CreateGrid()
 
-	// Check ship is placed
-	if grid[2][3] != "S" {
-		t.Errorf("Expected ship at (2, 3), got: %v", grid)
+	// Act
+	desiredCol := 3
+	desiredRow := 5
+	updatedGrid := PlaceShip(grid, desiredCol, desiredRow)
+
+	// by here we assukme the ship has been placed on the grid
+
+	// Assert
+	// a ship is placed
+	actual := updatedGrid[3][5]
+	want := "S"
+	if actual != want {
+		t.Error("Ship was not placed at col 3, row 5")
+	}
+}
+
+func assertGridIsCorrectSize(t *testing.T, grid [7][7]string, expectedRows int, expectedCols int) {
+	gridSizeCols := len(grid)
+	if gridSizeCols != expectedCols {
+		t.Error("Grid is wrong size. Expected max size of 7, got: ", gridSizeCols)
+	}
+
+	gridSizeRows := len(grid[0])
+	if gridSizeRows != expectedRows {
+		t.Error("Grid has wrong number of rows, wanted 7 but was", gridSizeRows)
 	}
 }
 
 func TestCannotPlaceShipOutsideGrid(t *testing.T) {
-	// empty grid
+
+	// Arrange
 	grid := CreateGrid()
 
-	// place ship outside grid at coords 7, 8
-	err := placeShip(grid, []int{7, 8})
+	// Act
+	// Trying to place a ship outside of the grid
+	updatedGrid := PlaceShip(grid, 8, 8)
 
-	// check if error is returned
-	if err == nil {
-		t.Error("Expected an error for placing a ship outside the grid, but no error received.")
+	// Assert
+	for a := 0; a < 7; a++ {
+		for b := 0; b < 7; b++ {
+			if updatedGrid[a][b] != "" {
+				t.Error("Ship should not be placed outside of the grid!!")
+			}
+		}
 	}
+
 }
 
 func TestCannotPlaceTenthShip(t *testing.T) {
-	// Create grid with nine ships placed
+
+	// Arrange
+
 	grid := CreateGrid()
-	for i := 0; i < 7; i++ {
-		grid[i][0] = "S"
+
+	// Act
+	for i := 0; i < maxShips; i++ { // create a max ship const in main for this 00:53 -- outside of placeship func
+		grid = PlaceShip(grid, i, i)
 	}
 
-	// placing tenth ship
-	err := placeShip(grid, []int{0, 0})
+	updatedGrid := PlaceShip(grid, 0, 0)
 
-	// check error is returned
-	if err == nil {
-		t.Error("Expected an error for placing the tenth ship, but no error received.")
+	// Assert
+
+	for a := 0; a < 7; a++ {
+		for b := 0; b < 7; b++ {
+			if updatedGrid[a][b] != "" {
+				t.Errorf("Cant place more then 9 ships!!!!")
+			}
+		}
 	}
 }
