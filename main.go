@@ -1,6 +1,6 @@
 package main
 
-import "errors"
+import "fmt"
 
 /*
 This game of battleships is very simple to start:
@@ -16,6 +16,8 @@ The player to first sink all their opponent's battleships is the winner
 
 //All code in here is example code, you do not have to keep any of it.
 
+const maxShips = 9
+
 func PlayerOneTurn(playerTwoGrid [7][7]string, shotCoordinates []int) (shotStatus bool) {
 	return false //shot missed
 }
@@ -25,48 +27,34 @@ func PlayerTwoTurn(playerOneGrid [7][7]string, shotCoordinates []int) (shotStatu
 }
 
 func CreateGrid() (grid [7][7]string) {
-	// Initialise grid with an S at 2, 3
-	for i := range grid {
-		for j := range grid[i] {
-			if i == 2 && j == 3 {
-				grid[i][j] = "S"
-			} else {
-				grid[i][j] = ""
-			}
-		}
+	//this is a fixed array not a slice
+	return [7][7]string{}
+}
+
+func PlaceShip(grid [7][7]string, col int, row int) [7][7]string {
+
+	shipsPlaced := 0 // resetting shipsPlaced counter
+
+	if shipsPlaced >= maxShips { // shipsPlaced cant be more than maxShips const (9)
+		fmt.Println("You cant place more than ... ", maxShips)
+		return grid
 	}
+
+	if col < 0 || col >= 7 || row < 0 || row >= 7 {
+		fmt.Println("Cant place a ship outside of the grid!!!!!!")
+		return grid // Returning the grid without placing a ship, 00:42, TestCannotPlaceShipOutsideGrid
+	}
+
+	// Place ship on the grid ^^^^
+
+	// Cannot place a tenth ship test, checks if a ship is already on a grid so you cant place another
+
+	if grid[col][row] == "S" {
+		fmt.Println("Cannot place a ship on top of another")
+		return grid
+	}
+
+	grid[col][row] = "S"
+	shipsPlaced++
 	return grid
-}
-
-func countShips(grid [7][7]string) (int, error) {
-	shipCount := 0
-	for _, row := range grid {
-		for _, cell := range row {
-			if cell == "S" {
-				shipCount++
-				if shipCount > 9 {
-					return 0, errors.New("Cant place more than 9 ships.")
-				}
-			}
-		}
-	}
-	return shipCount, nil
-}
-
-func placeShip(grid [7][7]string, coordinates []int) error {
-	row, col := coordinates[0], coordinates[1]
-
-	// Check coorrds within the grid
-	if row < 0 || row >= 7 || col < 0 || col >= 7 {
-		return errors.New("Cannot place ship outside the grid.")
-	}
-
-	// check if ship in coords
-	if grid[row][col] == "S" {
-		return errors.New("Cannot place ship on an occupied cell.")
-	}
-
-	// place ship at coords
-	grid[row][col] = "S"
-	return nil
 }
