@@ -136,28 +136,22 @@ func TestCannotPlaceShipOutsideGrid(t *testing.T) {
 
 }
 
-// func TestCannotPlaceTenthShip(t *testing.T) {
+func TestCannotPlaceShipOnTopOfAnother(t *testing.T) {
+	// Arrange
+	grid := CreateGrid()
 
-// Arrange
+	// Act
+	// Place the first ship
+	grid = PlaceShip(grid, 3, 4)
 
-//	grid := CreateGrid()
+	// Try to place another ship on the same location
+	updatedGrid := PlaceShip(grid, 3, 4)
 
-// Act
-//	for i := 0; i < maxShips; i++ { // create a max ship const in main for this 00:53 -- outside of placeship func
-//		grid = PlaceShip(grid, 0, i)
-//	}
+	// Assert
+	// Check that the second ship was not placed
+	if updatedGrid[3][4] == "S" {
+		t.Error("Cannot place more than one ship in the same location!")
+	}
+}
 
-//	updatedGrid := PlaceShip(grid, 0, 0)
-
-// Assert
-
-//	for a := 0; a < 7; a++ {
-//		for b := 0; b < 7; b++ {
-//		if updatedGrid[a][b] != "" {
-//				t.Errorf("Cant place more then 9 ships!!!!")
-//			}
-//		}
-//	}
-//}
-//
 
