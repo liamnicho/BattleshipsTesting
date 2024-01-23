@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+)
 
 /*
 This game of battleships is very simple to start:
@@ -20,6 +22,10 @@ const maxShips = 9
 
 var shipsPlaced = 0
 
+var errCannotPlaceMoreThanMaxShips = errors.New("you cant place more than maxShips")
+var errCannotPlaceShipOutsideGrid = errors.New("cant place a ship outside of the grid")
+var errCannotPlaceShipOnTopOfAnother = errors.New("cannot place a ship on top of another")
+
 func PlayerOneTurn(playerTwoGrid [7][7]string, shotCoordinates []int) (shotStatus bool) {
 	return false //shot missed
 }
@@ -33,22 +39,23 @@ func CreateGrid() (grid [7][7]string) {
 	return [7][7]string{}
 }
 
-func PlaceShip(grid [7][7]string, col int, row int) [7][7]string {
+func PlaceShip(grid [7][7]string, col int, row int) ([7][7]string, error) {
 	if shipsPlaced >= maxShips {
-		fmt.Println("You cant place more than ... ", maxShips)
-		return grid
+		return grid, errCannotPlaceMoreThanMaxShips
 	}
 	if col < 0 || col >= 7 || row < 0 || row >= 7 {
-		fmt.Println("Cant place a ship outside of the grid!!!!!!")
-		return grid
+		return grid, errCannotPlaceShipOutsideGrid
 	}
 	//  checks if a ship is already on a grid so you cant place another
-	if grid[3][4] == "S" {
-		fmt.Println("Cannot place a ship on top of another")
-		return grid
+	shipPlaced := checkIfShipPlaced(grid, col, row)
+	if shipPlaced {
+		return grid, errCannotPlaceShipOnTopOfAnother
 	}
 	grid[col][row] = "S"
 	shipsPlaced++
-	return grid
+	return grid, nil
 }
 
+func checkIfShipPlaced(grid [7][7]string, col int, row int) bool {
+	return grid[col][row] == "S"
+}
