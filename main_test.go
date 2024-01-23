@@ -136,21 +136,25 @@ func TestCannotPlaceShipOutsideGrid(t *testing.T) {
 
 }
 
-func TestCannotPlaceShipOnTopOfAnother(t *testing.T) {
+// test that makes sure grid unchanged when trying to place more ships
+
+// test that returns an error when trying to place more ships
+
+func TestTenthShipReportsError(t *testing.T) {
 	// Arrange
 	grid := CreateGrid()
 
 	// Act
-	// Place the first ship
-	grid = PlaceShip(grid, 3, 4)
+	for i := 0; i < maxShips; i++ {
+		PlaceShip(grid, i, i)
+	}
 
-	// Try to place another ship on the same location
-	updatedGrid := PlaceShip(grid, 3, 4)
+	// Try to place a tenth ship
+	updatedGrid := PlaceShip(grid, 1, 1)
 
 	// Assert
-	// Check that the second ship was not placed
-	if updatedGrid[3][4] == "S" {
-		t.Error("Cannot place more than one ship in the same location!")
+	if updatedGrid != grid {
+		t.Error("Tenth ship placement should result in an error, but the grid was modified.")
 	}
 }
 
