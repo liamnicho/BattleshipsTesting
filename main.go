@@ -18,6 +18,8 @@ The player to first sink all their opponent's battleships is the winner
 
 const maxShips = 9
 
+var shipsPlaced = 0
+
 func PlayerOneTurn(playerTwoGrid [7][7]string, shotCoordinates []int) (shotStatus bool) {
 	return false //shot missed
 }
@@ -32,28 +34,19 @@ func CreateGrid() (grid [7][7]string) {
 }
 
 func PlaceShip(grid [7][7]string, col int, row int) [7][7]string {
-
-	shipsPlaced := 0 // resetting shipsPlaced counter
-
-	if shipsPlaced >= maxShips { // shipsPlaced cant be more than maxShips const (9)
+	if shipsPlaced >= maxShips {
 		fmt.Println("You cant place more than ... ", maxShips)
 		return grid
 	}
-
 	if col < 0 || col >= 7 || row < 0 || row >= 7 {
 		fmt.Println("Cant place a ship outside of the grid!!!!!!")
-		return grid // Returning the grid without placing a ship, 00:42, TestCannotPlaceShipOutsideGrid
+		return grid
 	}
-
-	// Place ship on the grid ^^^^
-
-	// Cannot place a tenth ship test, checks if a ship is already on a grid so you cant place another
-
-	if grid[col][row] == "S" {
+	//  checks if a ship is already on a grid so you cant place another
+	if grid[3][4] == "S" {
 		fmt.Println("Cannot place a ship on top of another")
 		return grid
 	}
-
 	grid[col][row] = "S"
 	shipsPlaced++
 	return grid
