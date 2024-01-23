@@ -65,7 +65,6 @@ func TestPlayerTwoTakingShot(t *testing.T) {
 
 //other tests here that fail
 
-// sometimes we write tests to test our own functions.
 func TestGetRandomGridSquare(t *testing.T) {
 	gridSquare := getRandomGridSquare()
 
@@ -91,9 +90,9 @@ func TestPlaceAShip(t *testing.T) {
 	// Act
 	desiredCol := 3
 	desiredRow := 5
-	updatedGrid := PlaceShip(grid, desiredCol, desiredRow)
+	updatedGrid, _ := PlaceShip(grid, desiredCol, desiredRow)
 
-	// by here we assukme the ship has been placed on the grid
+	// by now ship has been placed on grid
 
 	// Assert
 	// a ship is placed
@@ -123,7 +122,7 @@ func TestCannotPlaceShipOutsideGrid(t *testing.T) {
 
 	// Act
 	// Trying to place a ship outside of the grid
-	updatedGrid := PlaceShip(grid, 8, 8)
+	updatedGrid, _ := PlaceShip(grid, 8, 8)
 
 	// Assert
 	for a := 0; a < 7; a++ {
@@ -145,12 +144,25 @@ func TestTenthShipReportsError(t *testing.T) {
 	grid := CreateGrid()
 
 	// Act
+	var err error
 	for i := 0; i < maxShips; i++ {
-		PlaceShip(grid, i, i)
+		row := rand.Intn(7)
+		col := rand.Intn(7)
+		for checkIfShipPlaced(grid, row, col) {
+			row = rand.Intn(7)
+			col = rand.Intn(7)
+		}
+		grid, err = PlaceShip(grid, row, col)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 
 	// Try to place a tenth ship
-	updatedGrid := PlaceShip(grid, 1, 1)
+	updatedGrid, err := PlaceShip(grid, 1, 1)
+	if err != errCannotPlaceMoreThanMaxShips {
+		t.Errorf("expected error: %v, got nil", errCannotPlaceMoreThanMaxShips)
+	}
 
 	// Assert
 	if updatedGrid != grid {
@@ -158,4 +170,24 @@ func TestTenthShipReportsError(t *testing.T) {
 	}
 }
 
+// this test should fail if you try to place a ship on top of another
+func TestCannotPlaceShipOnTopOfAnotherError(t *testing.T) {
 
+	// Arrange
+	grid := CreateGrid()
+
+	// Act
+
+	row := 1
+	col := 1
+	grid, err := PlaceShip(grid, row, col)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Assert
+	_, err = PlaceShip(grid, row, col)
+	if err != errCannotPlaceShipOnTopOfAnother {
+		t.Errorf("expected error: %v, got nil", errCannotPlaceShipOnTopOfAnother)
+	}
+}
