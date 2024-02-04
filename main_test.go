@@ -22,6 +22,40 @@ func getRandomGridSquare() []int {
 
 }
 
+// this is a utility function for testing
+// It will fill a grid with maximum number of allowed ships at random locations
+func fillGridAtRandomPlaces(grid [7][7]string) ([7][7]string, error) {
+	var err error
+	for i := 0; i < maxShips; i++ {
+		row := rand.Intn(7)
+		col := rand.Intn(7)
+		for checkIfShipPlaced(grid, row, col) {
+			row = rand.Intn(7)
+			col = rand.Intn(7)
+		}
+		grid, err = PlaceShip(grid, row, col)
+		if err != nil {
+			return grid, err
+		}
+	}
+	return grid, nil
+}
+
+// testing internal function fillGridAtRandomPlaces
+func TestFillGridAtRandomPlaces(t *testing.T) {
+	grid := CreateGrid()
+
+	grid, err := fillGridAtRandomPlaces(grid)
+	if err != nil {
+		t.Error(err)
+	}
+
+	shipCount := countShipsInGrid(grid)
+	if shipCount != maxShips {
+		t.Errorf("expected %d ships, got %d ship", maxShips, shipCount)
+	}
+}
+
 //these are the two tests we have for our functions in main
 //the purpose of tests is to mimic interaction with our code
 //there is no "user input" - the test is the calling code
@@ -65,6 +99,7 @@ func TestPlayerTwoTakingShot(t *testing.T) {
 
 //other tests here that fail
 
+// sometimes we write tests to test our own functions.
 func TestGetRandomGridSquare(t *testing.T) {
 	gridSquare := getRandomGridSquare()
 
@@ -92,7 +127,7 @@ func TestPlaceAShip(t *testing.T) {
 	desiredRow := 5
 	updatedGrid, _ := PlaceShip(grid, desiredCol, desiredRow)
 
-	// by now ship has been placed on grid
+	// by here we assume the ship has been placed on the grid
 
 	// Assert
 	// a ship is placed
@@ -144,19 +179,6 @@ func TestTenthShipReportsError(t *testing.T) {
 	grid := CreateGrid()
 
 	// Act
-	var err error
-	for i := 0; i < maxShips; i++ {
-		row := rand.Intn(7)
-		col := rand.Intn(7)
-		for checkIfShipPlaced(grid, row, col) {
-			row = rand.Intn(7)
-			col = rand.Intn(7)
-		}
-		grid, err = PlaceShip(grid, row, col)
-		if err != nil {
-			t.Error(err)
-		}
-	}
 
 	// Try to place a tenth ship
 	updatedGrid, err := PlaceShip(grid, 1, 1)
@@ -172,11 +194,7 @@ func TestTenthShipReportsError(t *testing.T) {
 
 // this test should fail if you try to place a ship on top of another
 func TestCannotPlaceShipOnTopOfAnotherError(t *testing.T) {
-
-	// Arrange
 	grid := CreateGrid()
-
-	// Act
 
 	row := 1
 	col := 1
@@ -185,9 +203,48 @@ func TestCannotPlaceShipOnTopOfAnotherError(t *testing.T) {
 		t.Error(err)
 	}
 
-	// Assert
 	_, err = PlaceShip(grid, row, col)
 	if err != errCannotPlaceShipOnTopOfAnother {
 		t.Errorf("expected error: %v, got nil", errCannotPlaceShipOnTopOfAnother)
 	}
 }
+
+func TestCheckIfShipPlacedPositive(t *testing.T) {
+	grid := CreateGrid()
+
+	grid, err := PlaceShip(grid, 0, 0)
+	if err != nil {
+		t.Error(err)
+	}
+	shipPlaced := checkIfShipPlaced(grid, 0, 0)
+	if !shipPlaced {
+		t.Error("checkIfShipPlaced expected true, got false")
+	}
+}
+
+func TestCheckIfShipPlacedNegative(t *testing.T) {
+	grid := CreateGrid()
+
+	shipPlaced := checkIfShipPlaced(grid, 0, 0)
+	if shipPlaced {
+		t.Error("checkIfShipPlaced expected false, got true")
+	}
+}
+
+func TestCountShipsInGrid(t *testing.T) {
+	grid := CreateGrid()
+	grid, err := PlaceShip(grid, 0, 0)
+	if err != nil {
+		t.Error(err)
+	}
+
+	shipCount := countShipsInGrid(grid)
+	if shipCount != 1 {
+		t.Errorf("expected %d ships, got %d ship", 1, shipCount)
+	}
+}
+
+// func TestTakeTurnSunk(t *testing.T) {
+// 	grid := CreateGrid()
+
+// }
