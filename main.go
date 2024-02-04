@@ -21,10 +21,11 @@ The player to first sink all their opponent's battleships is the winner
 const maxShips = 9
 
 var shipsPlaced = 0
-
-var errCannotPlaceMoreThanMaxShips = errors.New("you cant place more than maxShips")
-var errCannotPlaceShipOutsideGrid = errors.New("cant place a ship outside of the grid")
-var errCannotPlaceShipOnTopOfAnother = errors.New("cannot place a ship on top of another")
+var (
+	errCannotPlaceMoreThanMaxShips   = errors.New("you cant place more than maxShips")
+	errCannotPlaceShipOutsideGrid    = errors.New("cant place a ship outside of the grid")
+	errCannotPlaceShipOnTopOfAnother = errors.New("cannot place a ship on top of another")
+)
 
 func PlayerOneTurn(playerTwoGrid [7][7]string, shotCoordinates []int) (shotStatus bool) {
 	return false //shot missed
@@ -58,4 +59,33 @@ func PlaceShip(grid [7][7]string, col int, row int) ([7][7]string, error) {
 
 func checkIfShipPlaced(grid [7][7]string, col int, row int) bool {
 	return grid[col][row] == "S"
+}
+
+// takeTurn - takes grid, row and col as input and places the ship opponent ship
+// grid is provided by one player, and row/col will by provided by the opponent
+// If the ship is hit it's marked "sunk"
+// else if the ship is missed, it's marked "missed"
+
+func takeTurn(grid [7][7]string, col int, row int) ([7][7]string, bool) {
+	shotStatus := false
+	if grid[row][col] == "S" { // Hit case
+		grid[row][col] = "sunk"
+		shotStatus = true
+	} else if grid[row][col] == "" {
+		grid[row][col] = "missed"
+	}
+	return grid, shotStatus
+}
+
+// countShipsInGrid returns the number of ships in the grid
+func countShipsInGrid(grid [7][7]string) int {
+	shipsCount := 0
+	for row := 0; row < 7; row++ {
+		for col := 0; col < 7; col++ {
+			if grid[row][col] == "S" {
+				shipsCount++
+			}
+		}
+	}
+	return shipsCount
 }
